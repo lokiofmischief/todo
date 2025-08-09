@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive To-Do</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 3rem 1rem;
+    }
+    .container {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      max-width: 480px;
+      width: 100%;
+      padding: 2rem;
+    }
+    h1 {
+      font-weight: 900;
+      font-size: 2.75rem;
+      letter-spacing: -0.04em;
+      color: #1f2937;
+      margin-bottom: 0.125rem;
+      user-select: none;
+    }
+    h2 {
+      font-weight: 500;
+      color: #6b7280;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      user-select: none;
+      margin-bottom: 1.5rem;
+    }
+    .todo-list {
+      border-top: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #fafafc;
+      box-shadow: inset 0 0 10px #e1e4ef;
+      padding: 0.25rem 0;
+      user-select: none;
+    }
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: #111827;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .todo-item:last-child {
+      border-bottom: none;
+    }
+    .todo-item input[type="checkbox"] {
+      appearance: none;
+      background-color: #fff;
+      border-radius: 0.375rem;
+      border: 2.5px solid #c7d2fe;
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 1rem;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .todo-item input[type="checkbox"]:checked {
+      background-color: #6366f1;
+      border-color: #6366f1;
+    }
+    .todo-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 0px;
+      width: 6px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2.5px 2.5px 0;
+      transform: rotate(45deg);
+    }
+    .todo-item label {
+      flex: 1;
+      user-select: text;
+    }
+    .todo-item .remove-btn {
+      background-color: transparent;
+      border: none;
+      color: #818cf8;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+      user-select: none;
+    }
+    .todo-item .remove-btn:hover {
+      color: #4f46e5;
+    }
+    .todo-input {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px solid transparent;
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: #374151;
+      background-color: #f3f4f6;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+    }
+    .todo-input::placeholder {
+      color: #a1a1aa;
+    }
+    .todo-input:focus {
+      outline: none;
+      cursor: text;
+      background-color: #fff;
+      border-color: #6366f1;
+      text-align: left;
+      user-select: text;
+    }
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #c7d2fe;
+      border-radius: 10px;
+    }
+    @media(max-width: 520px) {
+      body {
+        padding: 2rem 1rem;
+      }
+      .container {
+        max-width: 100%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main" aria-label="Interactive to-do list">
+    <h1 tabindex="0">INTERACTIVE</h1>
+    <h2 tabindex="0">THINGS I NEED TO DO</h2>
+    <section aria-live="polite" aria-relevant="additions" aria-atomic="false" class="todo-list" id="todoList" tabindex="0">
+      <!-- Todo items injected here -->
+    </section>
+    <input 
+      type="text" 
+      class="todo-input" 
+      id="todoInput" 
+      placeholder="+ Add a new task" 
+      aria-label="Add a new task"
+      autocomplete="off"
+      />
+  </main>
+
+  <script>
+    (() => {
+      const todoListEl = document.getElementById('todoList');
+      const todoInputEl = document.getElementById('todoInput');
+
+      // Predefined "failure" tasks
+      const forcedTasks = [
+        "Go eat food",
+        "Sleep",
+        "Scroll Instagram",
+        "Stare at the ceiling",
+        "Do nothing useful",
+        "Daydream about success",
+        "Procrastinate more",
+      ];
+
+      // Track all the todos in an array
+      let todos = [
+      /*  "Office work, take breaks throughout the day",
+        "Read a book or listen an audiobook",
+        "Go for a 30 minute walk after work",
+        "Visit mom, buy flowers",
+        "Grocery shopping: fruits and vegetables",
+        "Do yoga for at least 15 minutes",
+        "Go to bed before 12 AM",
+        "Meditate for at least 5 minutes",
+        "Drink an adequate amount of water",
+        "Write to-do for the next day",
+        "Take a few minutes to reflect on my day",
+        "Declutter my space"*/
+      ];
+
+      // Render function to refresh UI
+      function renderTodos() {
+        todoListEl.innerHTML = '';
+        todos.forEach((task, index) => {
+          const item = document.createElement('div');
+          item.className = 'todo-item';
+          item.setAttribute('role', 'listitem');
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = 'todo-' + index;
+          checkbox.setAttribute('aria-label', `Mark task "${task}" as done`);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+              item.style.opacity = '0.5';
+              item.style.textDecoration = 'line-through';
+            } else {
+              item.style.opacity = '1';
+              item.style.textDecoration = 'none';
+            }
+          });
+
+          const label = document.createElement('label');
+          label.htmlFor = checkbox.id;
+          label.textContent = task;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-btn';
+          removeBtn.setAttribute('aria-label', `Remove task "${task}"`);
+          removeBtn.title = 'Remove task';
+          removeBtn.innerHTML = '&times;';
+          removeBtn.addEventListener('click', () => {
+            todos.splice(index, 1);
+            renderTodos();
+          });
+
+          item.appendChild(checkbox);
+          item.appendChild(label);
+          item.appendChild(removeBtn);
+
+          todoListEl.appendChild(item);
+        });
+      }
+
+      // Initialization render
+      renderTodos();
+
+      // When user tries to add a task
+      todoInputEl.addEventListener('keydown', e => {
+        if(e.key === 'Enter') {
+          e.preventDefault();
+          // Pop-up message
+          alert("You are a failure, you can't do that.");
+
+          // Add a forced task randomly
+          const randomTask = forcedTasks[Math.floor(Math.random() * forcedTasks.length)];
+          todos.push(randomTask);
+
+          renderTodos();
+
+          // Reset input placeholder and clear value
+          todoInputEl.value = '';
+          todoInputEl.blur(); // Return from input state to show placeholder center aligned again
+        }
+      });
+
+      // On focus clear placeholder and align left, on blur if empty reset placeholder and center aligned
+      todoInputEl.addEventListener('focus', () => {
+        todoInputEl.placeholder = "";
+        todoInputEl.style.textAlign = 'left';
+        todoInputEl.style.cursor = 'text';
+        todoInputEl.style.userSelect = 'text';
+      });
+      todoInputEl.addEventListener('blur', () => {
+        if(todoInputEl.value.trim() === '') {
+          todoInputEl.placeholder = "+ Add a new task";
+          todoInputEl.style.textAlign = 'center';
+          todoInputEl.style.cursor = 'pointer';
+          todoInputEl.style.userSelect = 'none';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+```
