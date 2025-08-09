@@ -1,10 +1,10 @@
 
 
-# [Despicable ToDO] 🎯
+# Despicable ToDO🎯
 
 
 ## Basic Details
-### Team Name: [Padayyapa]
+### Team Name: Padayyapa
 
 
 ### Team Members
